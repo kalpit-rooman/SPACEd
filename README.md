@@ -1,0 +1,1 @@
+A single-button 2D action game where one key (tap/hold/double-tap) handles every strike, parry, and dodge.
