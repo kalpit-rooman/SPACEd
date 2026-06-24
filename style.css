@@ -1,0 +1,163 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #0a0a0a;
+    overflow: hidden;
+    font-family: 'Courier New', monospace;
+    color: #ffffff;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#gameCanvas {
+    display: block;
+    background: #111111;
+    border: 1px solid #222222;
+}
+
+#ui-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    padding: 20px;
+}
+
+#score {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    opacity: 0.8;
+}
+
+#health-bar {
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    width: 200px;
+    height: 8px;
+    background: #222222;
+    border: 1px solid #333333;
+}
+
+#health-fill {
+    height: 100%;
+    width: 100%;
+    background: #ffffff;
+    transition: width 0.2s ease;
+}
+
+#combo {
+    position: absolute;
+    top: 60px;
+    right: 30px;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    letter-spacing: 1px;
+}
+
+#combo.visible {
+    opacity: 0.7;
+}
+
+#start-screen,
+#game-over-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10, 10, 10, 0.95);
+    z-index: 10;
+}
+
+#start-screen h1 {
+    font-size: 64px;
+    letter-spacing: 16px;
+    margin-bottom: 10px;
+}
+
+#game-over-screen h2 {
+    font-size: 48px;
+    letter-spacing: 8px;
+    margin-bottom: 20px;
+}
+
+.subtitle {
+    font-size: 14px;
+    letter-spacing: 4px;
+    opacity: 0.5;
+    margin-bottom: 50px;
+}
+
+.controls-info {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 50px;
+}
+
+.control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.key {
+    border: 1px solid #444;
+    padding: 8px 16px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    background: #1a1a1a;
+}
+
+.control span:last-child {
+    font-size: 11px;
+    opacity: 0.5;
+    letter-spacing: 2px;
+}
+
+.start-prompt {
+    font-size: 13px;
+    letter-spacing: 3px;
+    opacity: 0.4;
+    animation: blink 2s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.1; }
+}
+
+#final-score {
+    font-size: 18px;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+}
+
+.hidden {
+    display: none !important;
+}

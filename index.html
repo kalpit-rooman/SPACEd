@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPACEd</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="ui-overlay">
+            <div id="score">0</div>
+            <div id="health-bar">
+                <div id="health-fill"></div>
+            </div>
+            <div id="combo"></div>
+        </div>
+        <div id="start-screen">
+            <h1>SPACEd</h1>
+            <p class="subtitle">One key. Every action.</p>
+            <div class="controls-info">
+                <div class="control"><span class="key">TAP</span><span>Strike</span></div>
+                <div class="control"><span class="key">HOLD</span><span>Parry</span></div>
+                <div class="control"><span class="key">x2</span><span>Dodge</span></div>
+            </div>
+            <p class="start-prompt">Press SPACE to begin</p>
+        </div>
+        <div id="game-over-screen" class="hidden">
+            <h2>GAME OVER</h2>
+            <p id="final-score"></p>
+            <p class="start-prompt">Press SPACE to restart</p>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
