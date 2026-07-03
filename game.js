@@ -28,11 +28,38 @@ let assetsLoaded = 0;
 const totalAssets = Object.keys(assetSources).length;
 let assetsReady = false;
 
+function makeBlackTransparent(img) {
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = img.width;
+    tempCanvas.height = img.height;
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCtx.drawImage(img, 0, 0);
+    
+    const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+    const data = imgData.data;
+    for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        // Chroma key: convert black/near-black pixels to transparent
+        if (r < 15 && g < 15 && b < 15) {
+            data[i + 3] = 0; // set alpha channel to 0
+        }
+    }
+    tempCtx.putImageData(imgData, 0, 0);
+    return tempCanvas;
+}
+
 function loadAssets(callback) {
     for (let key in assetSources) {
         const img = new Image();
         img.src = assetSources[key];
         img.onload = () => {
+            if (key !== 'background') {
+                images[key] = makeBlackTransparent(img);
+            } else {
+                images[key] = img;
+            }
             assetsLoaded++;
             if (assetsLoaded === totalAssets) {
                 assetsReady = true;
@@ -94,9 +121,9 @@ document.addEventListener('keydown', (e) => {
             const now = performance.now();
             spaceDownTime = now;
 
-            // Double tap space (strike)
+            // Double tap space (jump)
             if (now - lastSpaceUpTime < DOUBLE_TAP_WINDOW) {
-                player.startStrike();
+                player.jump();
                 lastSpaceUpTime = 0;
                 isStrikeActive = true;
             } else {
@@ -123,7 +150,7 @@ document.addEventListener('keyup', (e) => {
             if (player.state === 'parrying') {
                 player.stopParry();
             } else if (!isStrikeActive && gameState === 'playing') {
-                player.jump();
+                player.startStrike(); // Single tap triggers Strike
                 lastSpaceUpTime = now;
             }
             isStrikeActive = false;
