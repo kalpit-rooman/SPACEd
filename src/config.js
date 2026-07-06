@@ -26,8 +26,6 @@ export const PLAYER = {
     jumpVelocity: -11,
     gravity: 0.5,
     strikeDuration: 200,   // ms
-    dodgeDuration: 300,    // ms
-    dodgeSpeed: 8,
     hurtDuration: 300,     // ms
     strikeReach: 35,       // horizontal offset of strike hitbox from player
     strikeRangeX: 40,      // hit tolerance in x
@@ -42,13 +40,6 @@ export const COMBAT = {
     killScore: 100,
     parryScoreBase: 50,     // multiplied by combo
     staggerDuration: 1000,  // ms an enemy stays staggered after a parry
-};
-
-// --- Enemy spawning ---
-export const SPAWN = {
-    baseInterval: 2000,     // ms between spawns at start
-    minInterval: 600,       // fastest spawn interval
-    rampPerSecond: 50,      // interval reduction per second of play
 };
 
 // --- Enemy type definitions ---
