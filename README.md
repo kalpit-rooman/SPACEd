@@ -34,7 +34,7 @@ The one-button depth comes from *reading the telegraph*:
 - **Swarmer** — small, fast, **low** sweep. Jump it.
 - **Shielder** — blocks frontal strikes; parry its **high** attack or wait for a stagger.
 - **Flyer** — hovers at head height; **jump-strike** to reach and kill it.
-- **Shooter** — keeps distance and fires projectiles; strike/jump the shots.
+- **Shooter** — fires projectiles as it advances; strike or jump the shots.
 - **Sector Boss** — a multi-phase boss every 5th wave with telegraphed high/low swings and projectile volleys. Clear it to advance a sector.
 
 ## Progression & scoring
