@@ -18,6 +18,12 @@
                 <div id="health-fill"></div>
             </div>
             <div id="combo"></div>
+            <div id="wave"></div>
+            <div id="buffs"></div>
+        </div>
+        <div id="banner">
+            <div id="banner-title"></div>
+            <div id="banner-sub"></div>
         </div>
         <div id="loading-screen">
             <h1 class="loading-title">SPACEd</h1>
@@ -32,11 +38,34 @@
                 <div class="control"><span class="key">HOLD</span><span>Parry</span></div>
                 <div class="control"><span class="key">x2</span><span>Jump</span></div>
             </div>
+            <div class="tells-info">
+                <span><b style="color:#ff007f">PARRY</b> high attacks &amp; shots</span>
+                <span><b style="color:#00f0ff">JUMP</b> low attacks</span>
+            </div>
+            <div id="best-line"></div>
+            <div class="settings-row">
+                <span class="settings-label">DIFFICULTY</span>
+                <div id="difficulty-buttons">
+                    <button class="diff-btn" data-diff="easy">EASY</button>
+                    <button class="diff-btn" data-diff="normal">NORMAL</button>
+                    <button class="diff-btn" data-diff="hard">HARD</button>
+                </div>
+            </div>
+            <div class="settings-row">
+                <span class="settings-label">VOLUME</span>
+                <input id="vol-master" class="vol-slider" type="range" min="0" max="1" step="0.05">
+            </div>
             <p class="start-prompt">Press SPACE to begin</p>
+        </div>
+        <div id="pause-screen" class="hidden">
+            <h2>PAUSED</h2>
+            <p class="start-prompt">Press ESC to resume</p>
         </div>
         <div id="game-over-screen" class="hidden">
             <h2>GAME OVER</h2>
             <p id="final-score"></p>
+            <div id="record-badge" class="hidden">★ NEW BEST ★</div>
+            <p id="best-final"></p>
             <p class="start-prompt">Press SPACE to restart</p>
         </div>
     </div>

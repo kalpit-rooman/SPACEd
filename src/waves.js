@@ -5,6 +5,7 @@ import { game } from './state.js';
 import { enemies, spawnEnemy, pickType } from './enemies.js';
 import { spawnBoss, isBossAlive } from './boss.js';
 import { showBanner } from './ui.js';
+import { diff } from './settings.js';
 import { WAVES, EARLY_TYPES } from './config.js';
 
 // phase: 'incoming' | 'clearing' | 'boss' | 'breather'
@@ -21,7 +22,8 @@ export function resetWaves() {
 }
 
 function waveCount() {
-    return Math.min(WAVES.maxCount, WAVES.baseCount + Math.floor((game.wave - 1) * WAVES.countPerWave));
+    const base = WAVES.baseCount + Math.floor((game.wave - 1) * WAVES.countPerWave);
+    return Math.max(1, Math.min(WAVES.maxCount, Math.round(base * diff().countMult)));
 }
 
 function allowedTypes() {

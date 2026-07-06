@@ -18,12 +18,12 @@ export const totalAssets = Object.keys(assetSources).length;
 export let assetsLoaded = 0;
 export let assetsReady = false;
 
-// Chroma-key: convert the black field to transparent. Source art is opaque
-// JPEG on a near-black background, so this fakes an alpha channel at load.
-// A feathered band (LOW→HIGH luminance) softens the hard fringe the old
-// single-threshold cut left around sprites.
-const CHROMA_LOW = 24;   // fully transparent at/below this luminance
-const CHROMA_HIGH = 60;  // fully opaque at/above this luminance
+// Chroma-key the solid background field to transparent, faking an alpha channel
+// at load. Sprites here are opaque JPEG on either a black OR white field
+// (charger is white-backed), so we detect the corner luminance and key that
+// end of the range, with a feathered band to soften the fringe.
+const DARK_LOW = 24, DARK_HIGH = 60;      // black bg: transparent below, opaque above
+const LIGHT_HIGH = 231, LIGHT_LOW = 195;  // white bg: transparent above, opaque below
 function makeBlackTransparent(img) {
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = img.width;
@@ -33,14 +33,17 @@ function makeBlackTransparent(img) {
 
     const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
     const data = imgData.data;
-    const span = CHROMA_HIGH - CHROMA_LOW;
+    const lumAt = (i) => 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+    const lightBg = lumAt(0) > 128; // top-left corner tells us the background
+
     for (let i = 0; i < data.length; i += 4) {
-        // Perceived luminance of the pixel.
-        const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-        if (lum <= CHROMA_LOW) {
-            data[i + 3] = 0;
-        } else if (lum < CHROMA_HIGH) {
-            data[i + 3] = Math.round(((lum - CHROMA_LOW) / span) * 255);
+        const lum = lumAt(i);
+        if (lightBg) {
+            if (lum >= LIGHT_HIGH) data[i + 3] = 0;
+            else if (lum > LIGHT_LOW) data[i + 3] = Math.round(((LIGHT_HIGH - lum) / (LIGHT_HIGH - LIGHT_LOW)) * 255);
+        } else {
+            if (lum <= DARK_LOW) data[i + 3] = 0;
+            else if (lum < DARK_HIGH) data[i + 3] = Math.round(((lum - DARK_LOW) / (DARK_HIGH - DARK_LOW)) * 255);
         }
     }
     tempCtx.putImageData(imgData, 0, 0);

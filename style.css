@@ -95,6 +95,85 @@ body {
     transform: scale(1);
 }
 
+#wave {
+    position: absolute;
+    top: 44px;
+    left: 36px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #9fd8ff;
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.4);
+    opacity: 0.9;
+}
+
+#buffs {
+    position: absolute;
+    top: 96px;
+    right: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+}
+
+.buff {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid currentColor;
+}
+
+.buff.power { color: #ffcc33; text-shadow: 0 0 6px rgba(255, 204, 51, 0.6); }
+.buff.slow { color: #66ccff; text-shadow: 0 0 6px rgba(102, 204, 255, 0.6); }
+
+#banner {
+    position: absolute;
+    top: 32%;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0.8);
+    z-index: 15;
+}
+
+#banner.show {
+    animation: bannerPop 0.4s ease forwards;
+}
+
+#banner-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 46px;
+    font-weight: 900;
+    letter-spacing: 8px;
+    background: linear-gradient(135deg, #00f0ff 0%, #ff007f 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
+}
+
+#banner-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 15px;
+    letter-spacing: 5px;
+    color: #cfd6ff;
+    margin-top: 8px;
+    text-transform: uppercase;
+}
+
+@keyframes bannerPop {
+    0% { opacity: 0; transform: scale(0.8); }
+    20% { opacity: 1; transform: scale(1.05); }
+    80% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0.9; transform: scale(1); }
+}
+
 #loading-screen {
     position: absolute;
     top: 0;
@@ -146,6 +225,7 @@ body {
 }
 
 #start-screen,
+#pause-screen,
 #game-over-screen {
     position: absolute;
     top: 0;
@@ -224,6 +304,103 @@ body {
     color: #8f8ba8;
     text-transform: uppercase;
     letter-spacing: 3px;
+}
+
+.tells-info {
+    display: flex;
+    gap: 28px;
+    margin-bottom: 24px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #b7b3cc;
+    text-transform: uppercase;
+}
+
+#best-line {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: #ffcc55;
+    text-shadow: 0 0 8px rgba(255, 204, 85, 0.4);
+    margin-bottom: 28px;
+    min-height: 16px;
+}
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.settings-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #8f8ba8;
+    width: 90px;
+    text-align: right;
+}
+
+#difficulty-buttons { display: flex; gap: 8px; }
+
+.diff-btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 6px 14px;
+    background: rgba(0, 240, 255, 0.05);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    color: #7fd8e8;
+    border-radius: 6px;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: all 0.15s ease;
+}
+
+.diff-btn:hover { border-color: #00f0ff; color: #00f0ff; }
+
+.diff-btn.active {
+    background: rgba(0, 240, 255, 0.18);
+    border-color: #00f0ff;
+    color: #00f0ff;
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
+}
+
+.vol-slider {
+    pointer-events: auto;
+    width: 160px;
+    accent-color: #ff007f;
+    cursor: pointer;
+}
+
+#record-badge {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    color: #ffcc55;
+    text-shadow: 0 0 16px rgba(255, 204, 85, 0.7);
+    margin-bottom: 12px;
+    animation: pulseGlow 1.2s infinite alternate;
+}
+
+#best-final {
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: #9fd8ff;
+    margin-bottom: 36px;
+}
+
+#pause-screen h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 48px;
+    font-weight: 900;
+    letter-spacing: 12px;
+    color: #00f0ff;
+    text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+    margin-bottom: 20px;
 }
 
 .start-prompt {

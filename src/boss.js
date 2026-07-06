@@ -2,7 +2,7 @@
 // boss.js — Multi-phase telegraphed boss
 // ============================================
 import { canvas, ctx } from './core.js';
-import { images } from './assets.js';
+import { images, silhouettes } from './assets.js';
 import { game } from './state.js';
 import { player } from './player.js';
 import { createParticles } from './particles.js';
@@ -194,19 +194,17 @@ export function drawBoss() {
     const dw = boss.width + 30, dh = boss.height + 20;
     if (images.charger && images.charger.width) {
         ctx.drawImage(images.charger, -dw / 2, -dh, dw, dh);
+        if (boss.hitFlash > 0 && silhouettes.charger) {
+            ctx.save();
+            ctx.globalAlpha = Math.min(1, boss.hitFlash / 120);
+            ctx.drawImage(silhouettes.charger, -dw / 2, -dh, dw, dh);
+            ctx.restore();
+        }
     } else {
         ctx.fillStyle = '#aa1144';
         ctx.fillRect(-boss.width / 2, -boss.height, boss.width, boss.height);
     }
     ctx.restore();
-
-    if (boss.hitFlash > 0) {
-        ctx.save();
-        ctx.globalAlpha = Math.min(1, boss.hitFlash / 120) * 0.6;
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(-boss.width / 2, -boss.height, boss.width, boss.height);
-        ctx.restore();
-    }
 
     ctx.restore();
 

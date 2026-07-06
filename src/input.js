@@ -4,7 +4,7 @@
 // ============================================
 import { game } from './state.js';
 import { player } from './player.js';
-import { startGame } from './flow.js';
+import { startGame, togglePause } from './flow.js';
 import { INPUT } from './config.js';
 import { ensureAudio } from './audio.js';
 
@@ -19,6 +19,15 @@ export function initInput() {
 }
 
 function onKeyDown(e) {
+    // Pause toggle (Esc / P) while in a run.
+    if (e.code === 'Escape' || e.code === 'KeyP') {
+        if (game.state === 'playing' || game.state === 'paused') {
+            e.preventDefault();
+            togglePause();
+        }
+        return;
+    }
+
     if (e.code !== 'Space') return;
     e.preventDefault();
     ensureAudio(); // unlock/resume the audio context on the first user gesture
@@ -27,6 +36,7 @@ function onKeyDown(e) {
         startGame();
         return;
     }
+    if (game.state === 'paused') return; // ignore gameplay input while paused
     if (e.repeat) return;
     if (spaceDown) return;
 

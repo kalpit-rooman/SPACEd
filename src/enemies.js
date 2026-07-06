@@ -12,6 +12,7 @@ import {
 import { sfx } from './audio.js';
 import { spawnProjectile } from './projectiles.js';
 import { maybeDropPowerup } from './powerups.js';
+import { teach } from './tutorial.js';
 import {
     ENEMY_TYPES, ENEMY_ATTACK, COMBAT, GROUND_OFFSET, PLAYER, SHAKE, PROJECTILE,
 } from './config.js';
@@ -143,6 +144,7 @@ export function updateEnemies(dt) {
                 e.stateTimer = 500;
                 e.windupTime = 320;
                 e.fireCooldown = e.def.fireInterval;
+                teach('shot', 'INCOMING FIRE', 'TAP TO STRIKE IT · OR JUMP');
             }
         }
 
@@ -160,6 +162,8 @@ export function updateEnemies(dt) {
             e.windupTime = ENEMY_ATTACK.windup;
             e.attackCooldown = ENEMY_ATTACK.cooldown;
             e.attackTier = e.def.attack === 'ranged' ? 'high' : e.def.attack;
+            if (e.attackTier === 'low') teach('low', 'LOW ATTACK', 'DOUBLE-TAP TO JUMP');
+            else teach('high', 'HIGH ATTACK', 'HOLD TO PARRY');
         }
 
         if (e.state === 'approaching') {

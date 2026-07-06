@@ -10,6 +10,7 @@ import {
     triggerShake, hitStop, screenFlash, spawnDamageNumber, spawnShockwave,
 } from './vfx.js';
 import { sfx } from './audio.js';
+import { diff } from './settings.js';
 import { gameOver } from './flow.js';
 
 export const player = {
@@ -22,7 +23,7 @@ export const player = {
     vx: 0,
     vy: 0,
     grounded: true,
-    state: 'idle', // idle, striking, parrying, dodging, hurt
+    state: 'idle', // idle, striking, parrying, hurt
     stateTimer: 0,
     invincible: false,
     facing: 1,
@@ -30,6 +31,7 @@ export const player = {
     reset() {
         this.x = canvas.width * 0.25;
         this.y = canvas.height - GROUND_OFFSET;
+        this.maxHealth = diff().health;
         this.health = this.maxHealth;
         this.state = 'idle';
         this.stateTimer = 0;
@@ -77,15 +79,6 @@ export const player = {
         this.health = Math.min(this.maxHealth, this.health + amount);
     },
 
-    startDodge() {
-        if (this.state === 'idle' || this.state === 'striking') {
-            this.state = 'dodging';
-            this.stateTimer = PLAYER.dodgeDuration;
-            this.invincible = true;
-            this.vx = this.facing * PLAYER.dodgeSpeed;
-        }
-    },
-
     // Successful parry: deflect, stagger, reward.
     parrySuccess(sourceEnemy) {
         createParticles(this.x, this.y, '#ffffff', 8);
@@ -110,6 +103,7 @@ export const player = {
     // Raw damage application (used by projectiles, boss contact, lethal test).
     applyDamage(amount) {
         if (this.invincible) return;
+        amount = Math.round(amount * diff().dmgMult);
         this.health -= amount;
         this.state = 'hurt';
         this.stateTimer = PLAYER.hurtDuration;
@@ -154,11 +148,6 @@ export const player = {
                 this.invincible = false;
                 this.vx = 0;
             }
-        }
-
-        if (this.state === 'dodging') {
-            this.x += this.vx;
-            this.vx *= 0.9;
         }
 
         if (!this.grounded) {
