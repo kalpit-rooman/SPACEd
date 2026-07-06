@@ -78,29 +78,35 @@ function killEnemy(e) {
     triggerShake(...SHAKE.hit);
     sfx.death();
     sfx.combo(game.combo);
-    maybeDropPowerup(e.x, e.baseY);
+    // Always drop to the ground plane so kills from flyers/elevated enemies
+    // don't leave a pickup floating out of the grounded player's reach.
+    maybeDropPowerup(e.x, canvas.height - GROUND_OFFSET);
 }
 
 function damageEnemy(e, dmg) {
-    const fresh = !e.hitFlash || e.hitFlash <= 0;
+    // One hit per swing: a sustained strike overlapping an enemy for many
+    // frames must not deal damage every frame.
+    if (e.lastStrikeId === player.strikeId) return;
+    e.lastStrikeId = player.strikeId;
     e.health -= dmg;
     e.hitFlash = 120;
     createParticles(e.x, e.y - 20, '#ffffff', 4);
     if (e.health <= 0) {
         killEnemy(e);
     } else {
-        if (fresh) {
-            spawnDamageNumber(e.x, e.y - e.height - 4, dmg, '#ffffff');
-            sfx.hit();
-        }
+        spawnDamageNumber(e.x, e.y - e.height - 4, dmg, '#ffffff');
+        sfx.hit();
         triggerShake(...SHAKE.hit);
     }
 }
 
 function strikeHits(e) {
     const strikeX = player.x + player.facing * PLAYER.strikeReach;
+    // Flyers sit at head height; give them a taller hit window so a jump-strike
+    // connects reliably (otherwise a flyer wave can stall progression).
+    const rangeY = e.def.flying ? PLAYER.strikeRangeY + 20 : PLAYER.strikeRangeY;
     return Math.abs(e.x - strikeX) < PLAYER.strikeRangeX
-        && Math.abs(e.y - player.y + 25) < PLAYER.strikeRangeY;
+        && Math.abs(e.y - player.y + 25) < rangeY;
 }
 
 function fireAtPlayer(e) {
@@ -206,6 +212,7 @@ export function updateEnemies(dt) {
 // Telegraph colour teaches the counter: magenta = parry, cyan = jump, orange = shot.
 function drawTelegraph(e) {
     if (e.state === 'firing' && e.windupTime > 0) {
+        ctx.save();
         ctx.fillStyle = '#ff7733';
         ctx.globalAlpha = 0.6 + Math.sin(Date.now() / 30) * 0.3;
         ctx.shadowColor = '#ff7733';
@@ -213,7 +220,7 @@ function drawTelegraph(e) {
         ctx.beginPath();
         ctx.arc(0, -e.height / 2, 6, 0, Math.PI * 2);
         ctx.fill();
-        ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+        ctx.restore();
         return;
     }
     if (e.state !== 'attacking' || e.windupTime <= 0) return;

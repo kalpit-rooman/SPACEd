@@ -65,6 +65,9 @@ function strikeHitsBoss() {
 }
 
 function damageBoss(dmg) {
+    // One hit per swing (see damageEnemy) — a strike overlaps for many frames.
+    if (boss.lastStrikeId === player.strikeId) return;
+    boss.lastStrikeId = player.strikeId;
     boss.health -= dmg;
     boss.hitFlash = 120;
     createParticles(boss.x, boss.y - boss.height / 2, '#ffffff', 4);
@@ -123,11 +126,11 @@ export function updateBoss(dt) {
         case 'telegraph':
             boss.timer -= dt;
             if (boss.timer <= 0) {
-                // Resolve the melee swing.
+                // Resolve the melee swing. A successful parry sets the boss to
+                // 'staggered' (a punish window) via parrySuccess — don't clobber it.
                 if (dist < meleeRange() + 30) player.resolveMelee(boss);
                 triggerShake(8, 160);
-                boss.state = 'recover';
-                boss.timer = 300;
+                if (boss.state === 'telegraph') { boss.state = 'recover'; boss.timer = 300; }
             }
             break;
 

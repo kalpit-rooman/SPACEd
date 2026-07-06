@@ -27,6 +27,7 @@ export const player = {
     stateTimer: 0,
     invincible: false,
     facing: 1,
+    strikeId: 0, // increments per swing so each target is hit at most once per strike
 
     reset() {
         this.x = canvas.width * 0.25;
@@ -46,6 +47,7 @@ export const player = {
             this.state = 'striking';
             this.stateTimer = PLAYER.strikeDuration;
             this.facing = 1;
+            this.strikeId++;
             sfx.strike();
         }
     },
@@ -230,7 +232,7 @@ export const player = {
         if (!this.grounded) {
             ctx.save();
             ctx.globalAlpha = 0.15;
-            if (images.player) {
+            if (images.player && images.player.width) {
                 ctx.scale(this.facing, 1);
                 ctx.drawImage(images.player, -25, -55 - this.vy * 0.8, 50, 55);
             }

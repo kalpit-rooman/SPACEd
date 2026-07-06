@@ -14,7 +14,7 @@ export function loadBest() {
 
 // Records the run if it beats the stored best. Returns true if a new record.
 export function recordScore(score, wave) {
-    if (score > best.score) {
+    if (score > best.score || (score === best.score && wave > best.wave)) {
         best.score = score;
         best.wave = wave;
         try { localStorage.setItem(LS_KEY, JSON.stringify(best)); } catch (e) { /* ignore */ }

@@ -182,6 +182,9 @@ function scheduler() {
     if (!ctx || !musicOn) return;
     const tempo = 132 + intensity * 24; // BPM
     const stepDur = 60 / tempo / 4; // 16th notes
+    // Resync if setTimeout was throttled (e.g. backgrounded tab) while the audio
+    // clock kept running — otherwise the backlog fires as one loud burst.
+    if (nextNoteTime < ctx.currentTime - 0.25) nextNoteTime = ctx.currentTime + stepDur;
     while (nextNoteTime < ctx.currentTime + 0.1) {
         playArp(step, nextNoteTime);
         if (step % 2 === 0) playBass(step / 2, nextNoteTime);

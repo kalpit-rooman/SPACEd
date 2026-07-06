@@ -33,8 +33,12 @@ function makeBlackTransparent(img) {
 
     const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
     const data = imgData.data;
+    const w = tempCanvas.width, h = tempCanvas.height;
     const lumAt = (i) => 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-    const lightBg = lumAt(0) > 128; // top-left corner tells us the background
+    // Vote across all four corners so one corner touched by artwork can't flip
+    // the black-vs-white background decision.
+    const corners = [0, (w - 1) * 4, (h - 1) * w * 4, ((h - 1) * w + (w - 1)) * 4];
+    const lightBg = corners.filter(c => lumAt(c) > 128).length >= 2;
 
     for (let i = 0; i < data.length; i += 4) {
         const lum = lumAt(i);

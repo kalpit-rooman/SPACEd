@@ -44,7 +44,7 @@ export function updateBackground(dt) {
 
 export function drawBackground() {
     // Static space image (falls back to flat fill).
-    if (images.background) {
+    if (images.background && images.background.width) {
         ctx.drawImage(images.background, 0, 0, canvas.width, canvas.height);
     } else {
         ctx.fillStyle = '#0a0914';

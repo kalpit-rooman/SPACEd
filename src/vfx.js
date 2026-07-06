@@ -8,10 +8,10 @@ let shakeTime = 0;
 let shakeIntensity = 0;
 
 export function triggerShake(intensity, duration) {
-    if (duration > shakeTime || intensity > shakeIntensity) {
-        shakeIntensity = intensity;
-        shakeTime = duration;
-    }
+    // Keep the strongest amplitude and the longest remaining duration, so a
+    // weak long shake can't dampen a strong one that's still playing.
+    shakeIntensity = shakeTime > 0 ? Math.max(shakeIntensity, intensity) : intensity;
+    shakeTime = Math.max(shakeTime, duration);
 }
 
 export function updateShake(dt) {

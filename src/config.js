@@ -50,7 +50,7 @@ export const ENEMY_TYPES = {
     swarmer: { weight: 0.30, health: 10, speed: 2.5, damage: 10, width: 25, height: 45, color: '#666666', attack: 'low', sprite: 'swarmer' },
     shielder: { weight: 0.18, health: 30, speed: 1.5, damage: 15, width: 25, height: 45, color: '#555555', attack: 'high', sprite: 'shielder' },
     flyer: { weight: 0.12, health: 12, speed: 2.0, damage: 12, width: 28, height: 30, color: '#7755aa', attack: 'high', sprite: 'swarmer', flying: true, flyHeight: 95 },
-    shooter: { weight: 0.10, health: 14, speed: 1.0, damage: 12, width: 26, height: 46, color: '#557799', attack: 'ranged', sprite: 'shielder', keepDistance: 240, fireInterval: 1800 },
+    shooter: { weight: 0.10, health: 14, speed: 1.0, damage: 12, width: 26, height: 46, color: '#557799', attack: 'ranged', sprite: 'shielder', fireInterval: 1800 },
 };
 
 // Enemy types allowed to spawn before the first few waves (eased introduction).
