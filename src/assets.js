@@ -3,6 +3,8 @@
 // ============================================
 
 export const images = {};
+// White-tinted silhouettes (same alpha mask) for clean hit-flash overlays.
+export const silhouettes = {};
 
 const assetSources = {
     background: 'space_background.png',
@@ -16,8 +18,12 @@ export const totalAssets = Object.keys(assetSources).length;
 export let assetsLoaded = 0;
 export let assetsReady = false;
 
-// Chroma-key: convert near-black pixels to transparent. The source art is
-// opaque JPEG on a black field, so this fakes an alpha channel at load time.
+// Chroma-key: convert the black field to transparent. Source art is opaque
+// JPEG on a near-black background, so this fakes an alpha channel at load.
+// A feathered band (LOW→HIGH luminance) softens the hard fringe the old
+// single-threshold cut left around sprites.
+const CHROMA_LOW = 24;   // fully transparent at/below this luminance
+const CHROMA_HIGH = 60;  // fully opaque at/above this luminance
 function makeBlackTransparent(img) {
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = img.width;
@@ -27,16 +33,33 @@ function makeBlackTransparent(img) {
 
     const imgData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
     const data = imgData.data;
+    const span = CHROMA_HIGH - CHROMA_LOW;
     for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        if (r < 15 && g < 15 && b < 15) {
+        // Perceived luminance of the pixel.
+        const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+        if (lum <= CHROMA_LOW) {
             data[i + 3] = 0;
+        } else if (lum < CHROMA_HIGH) {
+            data[i + 3] = Math.round(((lum - CHROMA_LOW) / span) * 255);
         }
     }
     tempCtx.putImageData(imgData, 0, 0);
     return tempCanvas;
+}
+
+// Build a solid-white copy that keeps the source's alpha mask — used for a
+// clean silhouette flash (unlike a brightness filter, this never reveals the
+// sprite's residual dark background).
+function makeSilhouette(src) {
+    const c = document.createElement('canvas');
+    c.width = src.width;
+    c.height = src.height;
+    const x = c.getContext('2d');
+    x.drawImage(src, 0, 0);
+    x.globalCompositeOperation = 'source-atop';
+    x.fillStyle = '#ffffff';
+    x.fillRect(0, 0, c.width, c.height);
+    return c;
 }
 
 // callback() runs once all assets have loaded (or failed).
@@ -46,7 +69,13 @@ export function loadAssets(callback, onProgress) {
         const img = new Image();
         img.src = assetSources[key];
         img.onload = () => {
-            images[key] = key === 'background' ? img : makeBlackTransparent(img);
+            if (key === 'background') {
+                images[key] = img;
+            } else {
+                const keyed = makeBlackTransparent(img);
+                images[key] = keyed;
+                silhouettes[key] = makeSilhouette(keyed);
+            }
             settle(callback, onProgress);
         };
         img.onerror = () => {

@@ -6,7 +6,9 @@ import { images } from './assets.js';
 import { game } from './state.js';
 import { PLAYER, COMBAT, GROUND_OFFSET, SHAKE } from './config.js';
 import { createParticles } from './particles.js';
-import { triggerShake } from './vfx.js';
+import {
+    triggerShake, hitStop, screenFlash, spawnDamageNumber, spawnShockwave,
+} from './vfx.js';
 import { gameOver } from './flow.js';
 
 export const player = {
@@ -84,7 +86,12 @@ export const player = {
             createParticles(this.x, this.y, '#ffffff', 8);
             game.combo++;
             game.comboTimer = COMBAT.comboTimer;
-            game.score += COMBAT.parryScoreBase * game.combo;
+            const gained = COMBAT.parryScoreBase * game.combo;
+            game.score += gained;
+            spawnShockwave(this.x, this.y - 25, 55, '#ff007f');
+            spawnDamageNumber(this.x, this.y - 60, `PARRY +${gained}`, '#ff66b2', true);
+            hitStop(70);
+            screenFlash('#ff007f', 90, 0.22);
             if (sourceEnemy) {
                 sourceEnemy.state = 'staggered';
                 sourceEnemy.stateTimer = COMBAT.staggerDuration;
@@ -99,6 +106,9 @@ export const player = {
         this.invincible = true;
         game.combo = 0;
         createParticles(this.x, this.y, '#ff4444', 6);
+        spawnDamageNumber(this.x, this.y - 60, `-${amount}`, '#ff4444');
+        screenFlash('#ff2244', 140, 0.3);
+        hitStop(60);
         triggerShake(...SHAKE.playerHurt);
         if (this.health <= 0) {
             gameOver();
@@ -140,7 +150,24 @@ export const player = {
 
     draw() {
         ctx.save();
-        ctx.translate(this.x, this.y);
+
+        // --- Procedural animation offsets (fakes frames on a static sprite) ---
+        let lunge = 0, bob = 0, sx = 1, sy = 1, recoil = 0;
+        if (this.state === 'striking') {
+            const p = 1 - this.stateTimer / PLAYER.strikeDuration; // 0→1
+            lunge = Math.sin(p * Math.PI) * 10 * this.facing;       // dip forward then back
+            sx = 1 + Math.sin(p * Math.PI) * 0.15;                  // stretch into the swing
+            sy = 1 - Math.sin(p * Math.PI) * 0.12;
+        } else if (this.state === 'parrying') {
+            recoil = -3 * this.facing; // brace slightly back
+            sy = 1.05;
+        } else if (this.state === 'hurt') {
+            recoil = (Math.random() - 0.5) * 5;
+        } else if (this.grounded) {
+            bob = Math.sin(Date.now() / 300) * 1.5; // idle breathing
+        }
+
+        ctx.translate(this.x + lunge + recoil, this.y + bob);
 
         if (this.invincible && Math.floor(Date.now() / PLAYER.invincibleFlashRate) % 2) {
             ctx.globalAlpha = 0.4;
@@ -148,7 +175,7 @@ export const player = {
 
         if (images.player) {
             ctx.save();
-            ctx.scale(this.facing, 1);
+            ctx.scale(this.facing * sx, sy);
             ctx.drawImage(images.player, -25, -55, 50, 55);
             ctx.restore();
         } else {

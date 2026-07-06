@@ -11,7 +11,23 @@ const el = {
     startScreen: document.getElementById('start-screen'),
     gameOverScreen: document.getElementById('game-over-screen'),
     finalScore: document.getElementById('final-score'),
+    loadingScreen: document.getElementById('loading-screen'),
+    loadingFill: document.getElementById('loading-fill'),
 };
+
+// --- Loading screen ---
+export function initLoading() {
+    if (el.startScreen) el.startScreen.classList.add('hidden');
+}
+
+export function setLoadingProgress(loaded, total) {
+    if (el.loadingFill) el.loadingFill.style.width = (loaded / total * 100) + '%';
+}
+
+export function finishLoading() {
+    if (el.loadingScreen) el.loadingScreen.classList.add('hidden');
+    if (el.startScreen) el.startScreen.classList.remove('hidden');
+}
 
 export function updateUI() {
     el.score.textContent = game.score;

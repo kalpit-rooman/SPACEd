@@ -2,11 +2,13 @@
 // enemies.js — Enemy types, spawning, AI, rendering
 // ============================================
 import { canvas, ctx } from './core.js';
-import { images } from './assets.js';
+import { images, silhouettes } from './assets.js';
 import { game } from './state.js';
 import { player } from './player.js';
 import { createParticles } from './particles.js';
-import { triggerShake } from './vfx.js';
+import {
+    triggerShake, hitStop, spawnDamageNumber, spawnShockwave,
+} from './vfx.js';
 import {
     ENEMY_TYPES, ENEMY_ATTACK, COMBAT, SPAWN, GROUND_OFFSET, PLAYER, SHAKE,
 } from './config.js';
@@ -77,6 +79,28 @@ function killEnemy(e) {
     game.score += COMBAT.killScore;
     game.combo++;
     game.comboTimer = COMBAT.comboTimer;
+    // Death juice.
+    createParticles(e.x, e.y - 20, '#00f0ff', 14);
+    createParticles(e.x, e.y - 20, '#ffffff', 8);
+    spawnShockwave(e.x, e.y - 20, 40, '#00f0ff');
+    spawnDamageNumber(e.x, e.y - e.height - 6, `+${COMBAT.killScore}`, '#00f0ff', true);
+    hitStop(55);
+    triggerShake(...SHAKE.hit);
+}
+
+// Apply strike damage with feedback (throttled so a sustained strike
+// doesn't spam numbers). Kills via killEnemy when depleted.
+function damageEnemy(e, dmg) {
+    const fresh = !e.hitFlash || e.hitFlash <= 0;
+    e.health -= dmg;
+    e.hitFlash = 120;
+    createParticles(e.x, e.y - 20, '#ffffff', 4);
+    if (e.health <= 0) {
+        killEnemy(e);
+    } else {
+        if (fresh) spawnDamageNumber(e.x, e.y - e.height - 4, dmg, '#ffffff');
+        triggerShake(...SHAKE.hit);
+    }
 }
 
 // Does the player's active strike overlap this enemy?
@@ -108,11 +132,10 @@ export function updateEnemies(dt) {
             if (e.attackCooldown > 0) e.attackCooldown -= dt;
 
             if (player.state === 'striking' && strikeHits(e)) {
-                e.health -= PLAYER.strikeDamage;
-                createParticles(e.x, e.y - 20, '#ffffff', 4);
-                if (e.health <= 0) killEnemy(e);
+                damageEnemy(e, PLAYER.strikeDamage);
             }
 
+            if (e.hitFlash > 0) e.hitFlash -= dt;
             if (e.x < -50) enemies.splice(i, 1);
             continue;
         }
@@ -159,13 +182,11 @@ export function updateEnemies(dt) {
                     triggerShake(...SHAKE.block);
                 }
             } else {
-                e.health -= PLAYER.strikeDamage;
-                createParticles(e.x, e.y - 20, '#ffffff', 4);
-                triggerShake(...SHAKE.hit);
-                if (e.health <= 0) killEnemy(e);
+                damageEnemy(e, PLAYER.strikeDamage);
             }
         }
 
+        if (e.hitFlash > 0) e.hitFlash -= dt;
         if (e.x < -50) enemies.splice(i, 1);
     }
 }
@@ -173,7 +194,21 @@ export function updateEnemies(dt) {
 export function drawEnemies() {
     for (const e of enemies) {
         ctx.save();
-        ctx.translate(e.x, e.y);
+
+        // --- Procedural animation ---
+        let animX = 0, bob = 0;
+        if (e.state === 'approaching') {
+            bob = Math.abs(Math.sin(Date.now() / 160 + e.x * 0.05)) * -2; // walk hop
+        } else if (e.state === 'attacking') {
+            if (e.windupTime > 0) {
+                animX = 6; // wind back (away from player, to the right)
+            } else {
+                animX = -10; // lunge toward player (left)
+            }
+        } else if (e.state === 'staggered') {
+            animX = 4; bob = 1;
+        }
+        ctx.translate(e.x + animX, e.y + bob);
 
         // Attack telegraph.
         if (e.state === 'attacking' && e.windupTime > 0) {
@@ -191,12 +226,23 @@ export function drawEnemies() {
         // Sprite (flipped to face left toward the player).
         ctx.save();
         ctx.scale(-1, 1);
-        if (e.type === 'swarmer' && images.swarmer) {
-            ctx.drawImage(images.swarmer, -e.width / 2 - 10, -e.height - 5, e.width + 20, e.height + 10);
-        } else if (e.type === 'charger' && images.charger) {
-            ctx.drawImage(images.charger, -e.width / 2 - 15, -e.height - 10, e.width + 30, e.height + 15);
-        } else if (e.type === 'shielder' && images.shielder) {
-            ctx.drawImage(images.shielder, -e.width / 2 - 10, -e.height - 5, e.width + 20, e.height + 10);
+        // Per-type draw rect (padding around the logical hitbox).
+        const pad = e.type === 'charger'
+            ? { x: 15, y: 10, w: 30, h: 15 }
+            : { x: 10, y: 5, w: 20, h: 10 };
+        const dx = -e.width / 2 - pad.x;
+        const dy = -e.height - pad.y;
+        const dw = e.width + pad.w;
+        const dh = e.height + pad.h;
+        if (images[e.type] && images[e.type].width) {
+            ctx.drawImage(images[e.type], dx, dy, dw, dh);
+            // Clean white silhouette flash on recent hit.
+            if (e.hitFlash > 0 && silhouettes[e.type]) {
+                ctx.save();
+                ctx.globalAlpha = Math.min(1, e.hitFlash / 120);
+                ctx.drawImage(silhouettes[e.type], dx, dy, dw, dh);
+                ctx.restore();
+            }
         } else {
             ctx.fillStyle = e.color;
             ctx.fillRect(-e.width / 2, -e.height, e.width, e.height);

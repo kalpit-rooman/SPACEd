@@ -5,6 +5,7 @@ import { game, resetRun } from './state.js';
 import { player } from './player.js';
 import { resetEnemies } from './enemies.js';
 import { resetParticles } from './particles.js';
+import { resetVfx } from './vfx.js';
 import { hideScreens, showGameOver } from './ui.js';
 
 export function startGame() {
@@ -12,6 +13,7 @@ export function startGame() {
     resetRun();
     resetEnemies();
     resetParticles();
+    resetVfx();
     player.reset();
     hideScreens();
 }
