@@ -73,6 +73,10 @@ export const player = {
         }
     },
 
+    heal(amount) {
+        this.health = Math.min(this.maxHealth, this.health + amount);
+    },
+
     startDodge() {
         if (this.state === 'idle' || this.state === 'striking') {
             this.state = 'dodging';
@@ -82,28 +86,30 @@ export const player = {
         }
     },
 
-    takeDamage(amount, sourceEnemy) {
-        if (this.invincible) return;
-        if (this.state === 'parrying') {
-            createParticles(this.x, this.y, '#ffffff', 8);
-            game.combo++;
-            game.comboTimer = COMBAT.comboTimer;
-            const gained = COMBAT.parryScoreBase * game.combo;
-            game.score += gained;
-            spawnShockwave(this.x, this.y - 25, 55, '#ff007f');
-            spawnDamageNumber(this.x, this.y - 60, `PARRY +${gained}`, '#ff66b2', true);
-            hitStop(70);
-            screenFlash('#ff007f', 90, 0.22);
-            sfx.parry();
-            sfx.combo(game.combo);
-            if (sourceEnemy) {
-                sourceEnemy.state = 'staggered';
-                sourceEnemy.stateTimer = COMBAT.staggerDuration;
-                createParticles(sourceEnemy.x, sourceEnemy.y - 20, '#5599ff', 6);
-            }
-            triggerShake(...SHAKE.parry);
-            return;
+    // Successful parry: deflect, stagger, reward.
+    parrySuccess(sourceEnemy) {
+        createParticles(this.x, this.y, '#ffffff', 8);
+        game.combo++;
+        game.comboTimer = COMBAT.comboTimer;
+        const gained = COMBAT.parryScoreBase * game.combo;
+        game.score += gained;
+        spawnShockwave(this.x, this.y - 25, 55, '#ff007f');
+        spawnDamageNumber(this.x, this.y - 60, `PARRY +${gained}`, '#ff66b2', true);
+        hitStop(70);
+        screenFlash('#ff007f', 90, 0.22);
+        sfx.parry();
+        sfx.combo(game.combo);
+        if (sourceEnemy) {
+            sourceEnemy.state = 'staggered';
+            sourceEnemy.stateTimer = COMBAT.staggerDuration;
+            createParticles(sourceEnemy.x, sourceEnemy.y - 20, '#5599ff', 6);
         }
+        triggerShake(...SHAKE.parry);
+    },
+
+    // Raw damage application (used by projectiles, boss contact, lethal test).
+    applyDamage(amount) {
+        if (this.invincible) return;
         this.health -= amount;
         this.state = 'hurt';
         this.stateTimer = PLAYER.hurtDuration;
@@ -115,9 +121,29 @@ export const player = {
         hitStop(60);
         sfx.hurt();
         triggerShake(...SHAKE.playerHurt);
-        if (this.health <= 0) {
-            gameOver();
+        if (this.health <= 0) gameOver();
+    },
+
+    // Backwards-compatible: parry if parrying, else take the hit.
+    takeDamage(amount, sourceEnemy) {
+        if (this.invincible) return;
+        if (this.state === 'parrying') { this.parrySuccess(sourceEnemy); return; }
+        this.applyDamage(amount);
+    },
+
+    // Tier-aware melee resolution: LOW attacks are jumped, HIGH attacks are parried.
+    // Returns 'avoided' | 'parried' | 'hit'.
+    resolveMelee(e) {
+        if (this.invincible) return 'avoided';
+        if (e.attackTier === 'low') {
+            if (!this.grounded) return 'avoided';   // jumped over it
+            this.applyDamage(e.damage);
+            return 'hit';
         }
+        // high
+        if (this.state === 'parrying') { this.parrySuccess(e); return 'parried'; }
+        this.applyDamage(e.damage);
+        return 'hit';
     },
 
     update(dt) {
