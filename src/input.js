@@ -6,6 +6,7 @@ import { game } from './state.js';
 import { player } from './player.js';
 import { startGame } from './flow.js';
 import { INPUT } from './config.js';
+import { ensureAudio } from './audio.js';
 
 let spaceDown = false;
 let lastSpaceUpTime = 0;
@@ -20,6 +21,7 @@ export function initInput() {
 function onKeyDown(e) {
     if (e.code !== 'Space') return;
     e.preventDefault();
+    ensureAudio(); // unlock/resume the audio context on the first user gesture
 
     if (game.state === 'start' || game.state === 'gameover') {
         startGame();

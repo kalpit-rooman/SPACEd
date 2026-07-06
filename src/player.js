@@ -9,6 +9,7 @@ import { createParticles } from './particles.js';
 import {
     triggerShake, hitStop, screenFlash, spawnDamageNumber, spawnShockwave,
 } from './vfx.js';
+import { sfx } from './audio.js';
 import { gameOver } from './flow.js';
 
 export const player = {
@@ -43,6 +44,7 @@ export const player = {
             this.state = 'striking';
             this.stateTimer = PLAYER.strikeDuration;
             this.facing = 1;
+            sfx.strike();
         }
     },
 
@@ -92,6 +94,8 @@ export const player = {
             spawnDamageNumber(this.x, this.y - 60, `PARRY +${gained}`, '#ff66b2', true);
             hitStop(70);
             screenFlash('#ff007f', 90, 0.22);
+            sfx.parry();
+            sfx.combo(game.combo);
             if (sourceEnemy) {
                 sourceEnemy.state = 'staggered';
                 sourceEnemy.stateTimer = COMBAT.staggerDuration;
@@ -109,6 +113,7 @@ export const player = {
         spawnDamageNumber(this.x, this.y - 60, `-${amount}`, '#ff4444');
         screenFlash('#ff2244', 140, 0.3);
         hitStop(60);
+        sfx.hurt();
         triggerShake(...SHAKE.playerHurt);
         if (this.health <= 0) {
             gameOver();

@@ -9,6 +9,7 @@ import { createParticles } from './particles.js';
 import {
     triggerShake, hitStop, spawnDamageNumber, spawnShockwave,
 } from './vfx.js';
+import { sfx } from './audio.js';
 import {
     ENEMY_TYPES, ENEMY_ATTACK, COMBAT, SPAWN, GROUND_OFFSET, PLAYER, SHAKE,
 } from './config.js';
@@ -86,6 +87,8 @@ function killEnemy(e) {
     spawnDamageNumber(e.x, e.y - e.height - 6, `+${COMBAT.killScore}`, '#00f0ff', true);
     hitStop(55);
     triggerShake(...SHAKE.hit);
+    sfx.death();
+    sfx.combo(game.combo);
 }
 
 // Apply strike damage with feedback (throttled so a sustained strike
@@ -98,7 +101,10 @@ function damageEnemy(e, dmg) {
     if (e.health <= 0) {
         killEnemy(e);
     } else {
-        if (fresh) spawnDamageNumber(e.x, e.y - e.height - 4, dmg, '#ffffff');
+        if (fresh) {
+            spawnDamageNumber(e.x, e.y - e.height - 4, dmg, '#ffffff');
+            sfx.hit();
+        }
         triggerShake(...SHAKE.hit);
     }
 }
@@ -180,6 +186,7 @@ export function updateEnemies(dt) {
                 if (Math.floor(Date.now() / 80) % 2 === 0) {
                     createParticles(e.x - 12, e.y - 20, '#5599ff', 3);
                     triggerShake(...SHAKE.block);
+                    sfx.block();
                 }
             } else {
                 damageEnemy(e, PLAYER.strikeDamage);

@@ -15,6 +15,7 @@ import { updateEnemies, drawEnemies, updateSpawner } from './enemies.js';
 import { updateParticles, drawParticles } from './particles.js';
 import { updateUI, initLoading, setLoadingProgress, finishLoading } from './ui.js';
 import { initInput } from './input.js';
+import { music } from './audio.js';
 import { MAX_DT } from './config.js';
 
 function gameLoop(timestamp) {
@@ -39,6 +40,8 @@ function gameLoop(timestamp) {
         updateEnemies(dt);
         updateParticles(dt);
         updateUI();
+        // Music intensity ramps with survival time and combo.
+        music.setIntensity(Math.min(1, game.time / 90000 + game.combo * 0.05));
     }
 
     drawParticles();
