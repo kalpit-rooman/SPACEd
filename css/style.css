@@ -1,0 +1,290 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #050508;
+    overflow: hidden;
+    overscroll-behavior: none;
+    -webkit-touch-callout: none;
+    font-family: 'Share Tech Mono', monospace;
+    color: #ffffff;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at center, #15102a 0%, #050508 100%);
+    touch-action: none;
+}
+
+#gameCanvas {
+    display: block;
+    background: #0a0914;
+    image-rendering: pixelated;
+    border: 4px solid #453070;
+    box-shadow: 0 0 0 4px #0d0a1a;
+    touch-action: none;
+}
+
+#scanlines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0 2px,
+        rgba(0, 0, 0, 0.12) 2px 4px
+    );
+}
+
+#ui-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    padding: 24px;
+    z-index: 6;
+}
+
+#score {
+    position: absolute;
+    top: 24px;
+    right: 36px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 20px;
+    color: #00f0ff;
+    text-shadow: 3px 3px 0 #0d0a1a;
+}
+
+#health-bar {
+    position: absolute;
+    top: 24px;
+    left: 36px;
+    width: 220px;
+    height: 14px;
+    background: #1e1932;
+    border: 2px solid #ff007f;
+    box-shadow: 3px 3px 0 #0d0a1a;
+}
+
+#health-fill {
+    height: 100%;
+    width: 100%;
+    background: #ff007f;
+    transition: none;
+}
+
+#wave-indicator {
+    position: absolute;
+    top: 48px;
+    left: 36px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #7a5fc0;
+    text-shadow: 2px 2px 0 #0d0a1a;
+}
+
+#combo {
+    position: absolute;
+    top: 60px;
+    right: 36px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    color: #ff007f;
+    text-shadow: 2px 2px 0 #0d0a1a;
+    opacity: 0;
+    transition: opacity 0.2s steps(4), transform 0.2s steps(4);
+    transform: scale(0.9);
+}
+
+#combo.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+#wave-banner {
+    position: absolute;
+    top: 35%;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 18px;
+    color: #00f0ff;
+    text-shadow: 3px 3px 0 #0d0a1a;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#wave-banner.show {
+    animation: waveBanner 1.6s steps(8) forwards;
+}
+
+@keyframes waveBanner {
+    0% { opacity: 0; transform: translateY(8px); }
+    15% { opacity: 1; transform: translateY(0); }
+    75% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.hud-buttons {
+    position: absolute;
+    bottom: 24px;
+    right: 36px;
+    display: flex;
+    gap: 12px;
+    pointer-events: auto;
+}
+
+.hud-buttons button {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: #00f0ff;
+    background: #0d0a1a;
+    border: 2px solid #00f0ff;
+    box-shadow: 2px 2px 0 #0d0a1a;
+    padding: 8px 10px;
+    cursor: pointer;
+}
+
+.hud-buttons button:active {
+    transform: translate(2px, 2px);
+    box-shadow: none;
+}
+
+#start-screen,
+#game-over-screen,
+#pause-screen {
+    /* Let taps fall through to the canvas so touch can start/restart */
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(8, 7, 15, 0.95);
+    z-index: 10;
+}
+
+#start-screen h1 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 40px;
+    color: #00f0ff;
+    text-shadow: 4px 4px 0 #ff007f, 8px 8px 0 #0d0a1a;
+    letter-spacing: 8px;
+    margin-bottom: 16px;
+}
+
+#game-over-screen h2,
+#pause-screen h2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 32px;
+    color: #ff3355;
+    letter-spacing: 6px;
+    margin-bottom: 24px;
+    text-shadow: 4px 4px 0 #0d0a1a;
+}
+
+#pause-screen h2 {
+    color: #00f0ff;
+}
+
+.subtitle {
+    font-size: 14px;
+    letter-spacing: 6px;
+    color: #8f8ba8;
+    margin-bottom: 48px;
+    text-transform: uppercase;
+}
+
+.controls-info {
+    display: flex;
+    gap: 48px;
+    margin-bottom: 40px;
+}
+
+.control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.key {
+    font-family: 'Press Start 2P', monospace;
+    border: 3px solid #00f0ff;
+    padding: 10px 16px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    background: #0d0a1a;
+    box-shadow: 3px 3px 0 #0d0a1a;
+    color: #00f0ff;
+}
+
+.control span:last-child {
+    font-size: 12px;
+    color: #8f8ba8;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+#best-score {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    color: #ffd75e;
+    text-shadow: 2px 2px 0 #0d0a1a;
+    margin-bottom: 40px;
+}
+
+#new-best {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    color: #ff007f;
+    text-shadow: 2px 2px 0 #0d0a1a;
+    margin-bottom: 24px;
+    animation: blink 0.8s steps(2) infinite;
+}
+
+.start-prompt {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: #ffffff;
+    opacity: 0.7;
+    animation: blink 1.5s steps(2) infinite;
+    text-transform: uppercase;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 0.2; }
+}
+
+#final-score {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    margin-bottom: 24px;
+    letter-spacing: 2px;
+    color: #00f0ff;
+    text-shadow: 2px 2px 0 #0d0a1a;
+}
+
+.hidden {
+    display: none !important;
+}

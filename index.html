@@ -2,23 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>SPACEd</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%230d0a1a'/><rect x='5' y='2' width='6' height='6' fill='%2300f0ff'/><rect x='4' y='8' width='8' height='5' fill='%23453070'/></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div id="game-container">
-        <canvas id="gameCanvas"></canvas>
         <div id="ui-overlay">
             <div id="score">0</div>
             <div id="health-bar">
                 <div id="health-fill"></div>
             </div>
+            <div id="wave-indicator">WAVE 1</div>
             <div id="combo"></div>
+            <div id="wave-banner"></div>
+            <div class="hud-buttons">
+                <button id="pause-btn" type="button">PAUSE</button>
+                <button id="mute-btn" type="button">SND ON</button>
+            </div>
         </div>
+        <div id="scanlines"></div>
         <div id="start-screen">
             <h1>SPACEd</h1>
             <p class="subtitle">One key. Every action.</p>
@@ -27,14 +34,20 @@
                 <div class="control"><span class="key">HOLD</span><span>Parry</span></div>
                 <div class="control"><span class="key">x2</span><span>Jump</span></div>
             </div>
-            <p class="start-prompt">Press SPACE to begin</p>
+            <p id="best-score">BEST 0</p>
+            <p class="start-prompt">Press SPACE or TAP to begin</p>
         </div>
         <div id="game-over-screen" class="hidden">
             <h2>GAME OVER</h2>
             <p id="final-score"></p>
-            <p class="start-prompt">Press SPACE to restart</p>
+            <p id="new-best" class="hidden">NEW BEST!</p>
+            <p class="start-prompt">Press SPACE or TAP to restart</p>
+        </div>
+        <div id="pause-screen" class="hidden">
+            <h2>PAUSED</h2>
+            <p class="start-prompt">P / ESC to resume</p>
         </div>
     </div>
-    <script src="game.js"></script>
+    <script type="module" src="/js/main.js"></script>
 </body>
 </html>
